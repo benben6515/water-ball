@@ -249,3 +249,9 @@ PostgreSQL schema should support:
 - Index on frequently queried fields (user_id, course_id, video_id)
 - Denormalization for leaderboard queries (consider materialized views)
 - Caching layer (Redis) for leaderboard and frequently accessed data
+
+## Active Technologies
+- PostgreSQL 15+ (user profiles, OAuth links, orders, course ownership) (001-member-system)
+
+## Recent Changes
+- 001-member-system: Added PostgreSQL 15+ (user profiles, OAuth links, orders, course ownership)

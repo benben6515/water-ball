@@ -1,18 +1,12 @@
 # water-ball
 
-> 水槍軟體學院 重製 ver
+> 地球軟體學院（水球軟體學院 重製 ver）
 
 SOP: https://waterball.notion.site/SOP-2a73be1863f680418cfcf9e2508e1c38
 
 描述：對於 https://world.waterballsa.tw/ 這個網站的重現
 
-Stack：
-
-1. 前端用 Next.js
-2. 後端用 Java / Spring Boot，資料庫用 Postgresql
-3. 前後端以及資料庫全部但要用 Docker-Compose 包起來，讓我們能夠可以用 docker-compose 指令在本地執行。
-4. 前後端中涵蓋的其他技術、套件不限制。
-5. 如有使用到：雲端服務，則雲端服務不限，我們的課程平台使用 S3 來儲存影片資料，您可以尋求其他手段來部署影音資料。
+其他可以參考：[/docs](docs)
 
 ---
 

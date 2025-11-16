@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "name": "地球",
+    "title": "地球軟體學院 創辦人",
+    "bio": "擁有豐富的軟體開發與教學經驗，致力於培養具備扎實基礎的軟體工程師。擅長物件導向設計、設計模式、軟體架構等領域。",
+    "expertise": [
+      "物件導向分析與設計",
+      "設計模式",
+      "軟體架構",
+      "敏捷開發"
+    ],
+    "avatar": "/images/instructors/waterball.jpg",
+    "socialLinks": {
+      "github": "https://github.com/waterball",
+      "linkedin": "https://linkedin.com/in/waterball"
+    }
+  }
+]

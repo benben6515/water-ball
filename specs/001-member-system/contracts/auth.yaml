@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Member System - Authentication API
+  description: OAuth authentication and session management endpoints
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+  - url: https://api.waterballsa.tw/api
+    description: Production server
+
+paths:
+  /auth/oauth/{provider}/authorize:
+    get:
+      summary: Initiate OAuth flow
+      description: Redirects user to OAuth provider authorization page (Google, Facebook)
+      operationId: initiateOAuth
+      tags:
+        - Authentication
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, facebook]
+          description: OAuth provider name
+      responses:
+        '302':
+          description: Redirect to OAuth provider
+          headers:
+            Location:
+              schema:
+                type: string
+                example: https://accounts.google.com/o/oauth2/v2/auth?client_id=...
+        '400':
+          description: Invalid provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/oauth/{provider}/callback:
+    get:
+      summary: OAuth callback handler
+      description: Handles OAuth provider callback, creates/links account, establishes session
+      operationId: oauthCallback
+      tags:
+        - Authentication
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, facebook]
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code from OAuth provider
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+          description: CSRF protection state parameter
+      responses:
+        '302':
+          description: Redirect to frontend with session token
+          headers:
+            Location:
+              schema:
+                type: string
+                example: http://localhost:3000/profile?token=eyJ...
+            Set-Cookie:
+              schema:
+                type: string
+                example: refresh_token=eyJ...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800
+        '401':
+          description: OAuth authorization failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: OAuth account already linked to another user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                example:
+                  code: OAUTH_ALREADY_LINKED
+                  message: 此 Google 帳號已被其他用戶綁定
+
+  /auth/session:
+    get:
+      summary: Get current session info
+      description: Returns authenticated user information
+      operationId: getSession
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Session information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfo'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Issues new access token using refresh token
+      operationId: refreshToken
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: Refresh token from cookie or request body
+              required:
+                - refresh_token
+      responses:
+        '200':
+          description: New access token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: New JWT access token (15min expiry)
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    example: 900
+                    description: Seconds until expiry
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      description: Terminates current session and invalidates tokens
+      operationId: logout
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Successfully logged out
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SessionInfo:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        nickname:
+          type: string
+        email:
+          type: string
+          format: email
+        level:
+          type: integer
+          minimum: 1
+        oauth_providers:
+          type: array
+          items:
+            type: string
+            enum: [GOOGLE, FACEBOOK]
+          description: Linked OAuth providers for this user
+      required:
+        - user_id
+        - nickname
+        - email
+        - level
+        - oauth_providers
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code for programmatic handling
+        message:
+          type: string
+          description: Human-readable error message (Chinese)
+        details:
+          type: object
+          description: Additional error context
+      required:
+        - code
+        - message

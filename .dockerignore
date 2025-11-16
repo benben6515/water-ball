@@ -1,0 +1,72 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+*.md
+specs/
+.specify/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Java/Maven
+target/
+*.class
+.mvn/
+mvnw
+mvnw.cmd
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+*.test.ts
+*.spec.ts
+*.test.js
+*.spec.js
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore

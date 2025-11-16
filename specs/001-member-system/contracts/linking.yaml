@@ -1,0 +1,218 @@
+openapi: 3.0.3
+info:
+  title: Member System - Third-Party Account Linking API
+  description: Discord and GitHub account linking endpoints
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+  - url: https://api.waterballsa.tw/api
+    description: Production server
+
+paths:
+  /linking/status:
+    get:
+      summary: Get linking status
+      description: Returns current user's linked third-party accounts
+      operationId: getLinkingStatus
+      tags:
+        - Linking
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Linking status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkingStatus'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /linking/{platform}/authorize:
+    get:
+      summary: Initiate third-party linking
+      description: Redirects user to Discord or GitHub OAuth for account linking
+      operationId: initiateLinking
+      tags:
+        - Linking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platform
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [discord, github]
+          description: Platform to link
+      responses:
+        '302':
+          description: Redirect to platform OAuth
+          headers:
+            Location:
+              schema:
+                type: string
+                example: https://discord.com/api/oauth2/authorize?client_id=...
+        '400':
+          description: Invalid platform or already linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                alreadyLinked:
+                  value:
+                    code: ALREADY_LINKED
+                    message: 此帳號已綁定
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /linking/{platform}/callback:
+    get:
+      summary: Third-party linking callback
+      description: Handles OAuth callback and creates account link
+      operationId: linkingCallback
+      tags:
+        - Linking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platform
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [discord, github]
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect back to frontend linking page
+          headers:
+            Location:
+              schema:
+                type: string
+                example: http://localhost:3000/linking?status=success&platform=discord
+        '409':
+          description: Platform account already linked to another user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                discordLinked:
+                  value:
+                    code: PLATFORM_ALREADY_LINKED
+                    message: 此 Discord 帳號已被其他用戶綁定
+                githubLinked:
+                  value:
+                    code: PLATFORM_ALREADY_LINKED
+                    message: 此 GitHub 帳號已被其他用戶綁定
+        '401':
+          description: Not authenticated or OAuth failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /linking/{platform}:
+    delete:
+      summary: Unlink third-party account
+      description: Removes link to Discord or GitHub account
+      operationId: unlinkAccount
+      tags:
+        - Linking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: platform
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [discord, github]
+      responses:
+        '204':
+          description: Successfully unlinked
+        '404':
+          description: Platform not currently linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: NOT_LINKED
+                message: 此帳號未綁定
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LinkingStatus:
+      type: object
+      properties:
+        discord:
+          $ref: '#/components/schemas/PlatformLink'
+        github:
+          $ref: '#/components/schemas/PlatformLink'
+      required:
+        - discord
+        - github
+
+    PlatformLink:
+      type: object
+      properties:
+        linked:
+          type: boolean
+          description: Whether platform is currently linked
+        username:
+          type: string
+          nullable: true
+          description: Platform username (null if not linked)
+        linked_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When link was created (null if not linked)
+      required:
+        - linked
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - code
+        - message
