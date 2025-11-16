@@ -43,9 +43,10 @@ target/
 *.war
 *.ear
 !.mvn/wrapper/maven-wrapper.jar
-.mvn/
-mvnw
-mvnw.cmd
+# Maven wrapper should be committed for CI/CD
+# .mvn/
+# mvnw
+# mvnw.cmd
 
 # IDE
 .idea/
