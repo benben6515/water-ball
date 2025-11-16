@@ -22,8 +22,16 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<SessionInfoResponse | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component is mounted before accessing localStorage
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return; // Wait for client-side mount
+
     // Check if user is admin
     const userDataStr = localStorage.getItem('user');
     if (userDataStr) {
@@ -42,7 +50,7 @@ export default function AdminUsersPage() {
       // Not logged in, redirect to login
       router.push('/login');
     }
-  }, [router]);
+  }, [router, mounted]);
 
   const fetchUsers = async () => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
