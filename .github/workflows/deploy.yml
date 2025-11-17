@@ -72,8 +72,8 @@ jobs:
             git fetch origin
             git reset --hard origin/001-member-system
 
-            # Restart services (no rebuild - saves memory and time)
-            docker compose -f docker-compose.prod.yml --env-file .env.production.local restart
+            # Restart services with updated env (no rebuild - saves memory and time)
+            docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d --no-build
 
             # Wait for services to be healthy
             echo "Waiting for services to restart..."
