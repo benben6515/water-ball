@@ -72,6 +72,17 @@ jobs:
             git fetch origin
             git reset --hard origin/001-member-system
 
+            # Verify .env.production.local exists
+            if [ ! -f .env.production.local ]; then
+              echo "❌ ERROR: .env.production.local not found in /opt/water-ball"
+              echo "Please create this file with your production secrets"
+              echo "Current directory contents:"
+              ls -la | grep "\.env"
+              exit 1
+            fi
+
+            echo "✅ Found .env.production.local"
+
             # Restart services with updated env (no rebuild - saves memory and time)
             docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d --no-build
 
