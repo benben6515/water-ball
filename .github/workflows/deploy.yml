@@ -92,10 +92,33 @@ jobs:
             echo "=== Environment files in directory ==="
             ls -la | grep "\.env" || echo "No .env files found"
 
-            # Restart services with updated env (no rebuild - saves memory and time)
-            # env_file is now specified in docker-compose.prod.yml
-            # --force-recreate ensures containers are recreated with new env vars
-            docker compose -f docker-compose.prod.yml up -d --no-build --force-recreate
+            # Check if Docker images exist for this project
+            echo "=== Checking for existing Docker images ==="
+            BACKEND_IMAGE=$(docker images -q water-ball-backend-prod 2>/dev/null)
+            FRONTEND_IMAGE=$(docker images -q water-ball-frontend-prod 2>/dev/null)
+
+            if [ -z "$BACKEND_IMAGE" ] || [ -z "$FRONTEND_IMAGE" ]; then
+              echo "🔨 First deployment detected - building Docker images..."
+              echo "This will take 5-10 minutes for the initial build."
+
+              # Build all images
+              docker compose -f docker-compose.prod.yml build
+
+              # Start services
+              docker compose -f docker-compose.prod.yml up -d
+
+              echo "✅ Images built and services started"
+            else
+              echo "✅ Images already exist - using fast deployment (no rebuild)"
+              echo "Backend image: $BACKEND_IMAGE"
+              echo "Frontend image: $FRONTEND_IMAGE"
+
+              # Restart services with updated env (no rebuild - saves memory and time)
+              # --force-recreate ensures containers are recreated with new env vars
+              docker compose -f docker-compose.prod.yml up -d --no-build --force-recreate
+
+              echo "✅ Fast deployment completed (~30 seconds)"
+            fi
 
             # Wait for services to be healthy
             echo "Waiting for services to restart..."
@@ -108,8 +131,12 @@ jobs:
             echo "=== Backend logs ==="
             docker compose -f docker-compose.prod.yml logs --tail=30 backend
 
+            echo ""
             echo "=== Deployment completed ==="
-            echo "Deployment took ~30 seconds instead of 1+ hour!"
+            echo "✅ All services are running"
+            echo ""
+            echo "💡 Note: To force a rebuild (e.g., after dependency changes):"
+            echo "   Run manually on server: docker compose -f docker-compose.prod.yml build"
 
       - name: Verify deployment
         uses: appleboy/ssh-action@v1.0.3
