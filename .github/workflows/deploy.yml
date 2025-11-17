@@ -84,7 +84,8 @@ jobs:
             echo "✅ Found .env.production.local"
 
             # Restart services with updated env (no rebuild - saves memory and time)
-            docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d --no-build
+            # --force-recreate ensures containers are recreated with new env vars
+            docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d --no-build --force-recreate
 
             # Wait for services to be healthy
             echo "Waiting for services to restart..."
