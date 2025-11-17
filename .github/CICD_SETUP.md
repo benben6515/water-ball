@@ -153,8 +153,8 @@ git reset --hard COMMIT_SHA
 
 # Rebuild and restart
 docker compose -f docker-compose.prod.yml down
-docker compose -f docker-compose.prod.yml --env-file .env.production build
-docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+docker compose -f docker-compose.prod.yml --env-file .env.production.local build
+docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d
 ```
 
 ## Troubleshooting
@@ -174,7 +174,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production up -d
   ```bash
   docker compose -f docker-compose.prod.yml logs
   ```
-- Verify `.env.production` file exists and has correct values
+- Verify `.env.production.local` file exists and has correct values
 - Check if ports are already in use
 
 ### Workflow doesn't trigger

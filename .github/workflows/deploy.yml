@@ -73,7 +73,7 @@ jobs:
             git reset --hard origin/001-member-system
 
             # Restart services (no rebuild - saves memory and time)
-            docker compose -f docker-compose.prod.yml --env-file .env.production restart
+            docker compose -f docker-compose.prod.yml --env-file .env.production.local restart
 
             # Wait for services to be healthy
             echo "Waiting for services to restart..."
