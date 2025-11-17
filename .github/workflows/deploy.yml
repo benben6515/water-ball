@@ -83,9 +83,18 @@ jobs:
 
             echo "✅ Found .env.production.local"
 
+            # Debug: Show env files (excluding actual secrets)
+            echo "=== Environment files in directory ==="
+            ls -la | grep "\.env" || echo "No .env files found"
+
+            # Debug: Check first line of .env.production.local (should show comment)
+            echo "=== First line of .env.production.local ==="
+            head -n 1 .env.production.local
+
             # Restart services with updated env (no rebuild - saves memory and time)
+            # env_file is now specified in docker-compose.prod.yml
             # --force-recreate ensures containers are recreated with new env vars
-            docker compose -f docker-compose.prod.yml --env-file .env.production.local up -d --no-build --force-recreate
+            docker compose -f docker-compose.prod.yml up -d --no-build --force-recreate
 
             # Wait for services to be healthy
             echo "Waiting for services to restart..."
