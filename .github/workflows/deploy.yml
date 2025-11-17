@@ -83,13 +83,14 @@ jobs:
 
             echo "✅ Found .env.production.local"
 
+            # Copy .env.production.local to .env for Docker Compose variable substitution
+            # Docker Compose uses .env file for ${VARIABLE} substitution in docker-compose.yml
+            cp .env.production.local .env
+            echo "✅ Copied .env.production.local to .env"
+
             # Debug: Show env files (excluding actual secrets)
             echo "=== Environment files in directory ==="
             ls -la | grep "\.env" || echo "No .env files found"
-
-            # Debug: Check first line of .env.production.local (should show comment)
-            echo "=== First line of .env.production.local ==="
-            head -n 1 .env.production.local
 
             # Restart services with updated env (no rebuild - saves memory and time)
             # env_file is now specified in docker-compose.prod.yml
