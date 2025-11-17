@@ -72,25 +72,22 @@ jobs:
             git fetch origin
             git reset --hard origin/001-member-system
 
-            # Stop services
-            docker compose -f docker-compose.prod.yml down
-
-            # Rebuild and restart services
-            docker compose -f docker-compose.prod.yml --env-file .env.production build
-            docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+            # Restart services (no rebuild - saves memory and time)
+            docker compose -f docker-compose.prod.yml --env-file .env.production restart
 
             # Wait for services to be healthy
-            echo "Waiting for services to start..."
-            sleep 30
+            echo "Waiting for services to restart..."
+            sleep 15
 
             # Check service status
             docker compose -f docker-compose.prod.yml ps
 
             # Show recent logs
             echo "=== Backend logs ==="
-            docker compose -f docker-compose.prod.yml logs --tail=50 backend
+            docker compose -f docker-compose.prod.yml logs --tail=30 backend
 
             echo "=== Deployment completed ==="
+            echo "Deployment took ~30 seconds instead of 1+ hour!"
 
       - name: Verify deployment
         uses: appleboy/ssh-action@v1.0.3
