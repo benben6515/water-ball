@@ -37,6 +37,8 @@ export default function AdminUsersPage() {
     if (userDataStr) {
       const userData: SessionInfoResponse = JSON.parse(userDataStr);
       setCurrentUser(userData);
+      console.log(userDataStr);
+      console.log(userData);
 
       if (userData.role !== 'ADMIN') {
         // Not an admin, redirect to home
@@ -59,7 +61,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`${backendUrl}/admin/users/all`, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -90,7 +92,7 @@ export default function AdminUsersPage() {
       const response = await fetch(`${backendUrl}/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ role: newRole }),
@@ -98,9 +100,9 @@ export default function AdminUsersPage() {
 
       if (response.ok) {
         // Update local state
-        setUsers(users.map(user =>
-          user.user_id === userId ? { ...user, role: newRole } : user
-        ));
+        setUsers(
+          users.map((user) => (user.user_id === userId ? { ...user, role: newRole } : user))
+        );
       } else {
         const errorData = await response.json();
         alert(`更新失敗: ${errorData.message || '未知錯誤'}`);
@@ -129,8 +131,18 @@ export default function AdminUsersPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
           <div className="text-red-600 text-center">
-            <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-16 h-16 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <p className="text-lg font-semibold">{error}</p>
           </div>
@@ -165,15 +177,21 @@ export default function AdminUsersPage() {
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">管理員</p>
-            <p className="text-2xl font-bold text-red-600">{users.filter(u => u.role === 'ADMIN').length}</p>
+            <p className="text-2xl font-bold text-red-600">
+              {users.filter((u) => u.role === 'ADMIN').length}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">老師</p>
-            <p className="text-2xl font-bold text-purple-600">{users.filter(u => u.role === 'TEACHER').length}</p>
+            <p className="text-2xl font-bold text-purple-600">
+              {users.filter((u) => u.role === 'TEACHER').length}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">學生</p>
-            <p className="text-2xl font-bold text-blue-600">{users.filter(u => u.role === 'STUDENT').length}</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {users.filter((u) => u.role === 'STUDENT').length}
+            </p>
           </div>
         </div>
 
@@ -183,14 +201,30 @@ export default function AdminUsersPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用者</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等級</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OAuth</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">註冊時間</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    使用者
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    等級
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    角色
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    OAuth
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    註冊時間
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -230,7 +264,9 @@ export default function AdminUsersPage() {
                       <select
                         value={user.role}
                         onChange={(e) => updateUserRole(user.user_id, e.target.value as UserRole)}
-                        disabled={updatingUserId === user.user_id || user.user_id === currentUser?.user_id}
+                        disabled={
+                          updatingUserId === user.user_id || user.user_id === currentUser?.user_id
+                        }
                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                       >
                         <option value="GUEST">訪客</option>
