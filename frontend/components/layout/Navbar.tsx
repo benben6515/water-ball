@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import UserAvatar from './UserAvatar';
+import Logo from '../Logo';
 
 export default function Navbar() {
   return (
@@ -10,7 +11,8 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo / Brand */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3 group">
+              <Logo className="w-10 h-10 transition-transform group-hover:scale-110" />
               <span className="text-2xl font-bold text-green-700">
                 地球軟體學院
               </span>
