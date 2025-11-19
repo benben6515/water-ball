@@ -81,13 +81,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: dev
+      args:
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:8080
     container_name: waterball-frontend
     ports:
       - "3000:3000"
     environment:
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8080
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
