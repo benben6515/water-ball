@@ -16,6 +16,9 @@ import java.util.List;
  *   "nickname": "小明",
  *   "email": "user@example.com",
  *   "level": 5,
+ *   "exp": 7500,
+ *   "exp_for_next_level": 1500,
+ *   "exp_progress_percentage": 25,
  *   "role": "STUDENT",
  *   "oauth_providers": ["google", "facebook"]
  * }
@@ -34,6 +37,14 @@ public class SessionInfoResponse {
 
     private Integer level;
 
+    private Integer exp;
+
+    @JsonProperty("exp_for_next_level")
+    private Integer expForNextLevel;
+
+    @JsonProperty("exp_progress_percentage")
+    private Integer expProgressPercentage;
+
     private String role;
 
     @JsonProperty("oauth_providers")
@@ -42,11 +53,16 @@ public class SessionInfoResponse {
     public SessionInfoResponse() {
     }
 
-    public SessionInfoResponse(Long userId, String nickname, String email, Integer level, String role, List<String> oauthProviders) {
+    public SessionInfoResponse(Long userId, String nickname, String email, Integer level, Integer exp,
+                                Integer expForNextLevel, Integer expProgressPercentage,
+                                String role, List<String> oauthProviders) {
         this.userId = userId;
         this.nickname = nickname;
         this.email = email;
         this.level = level;
+        this.exp = exp;
+        this.expForNextLevel = expForNextLevel;
+        this.expProgressPercentage = expProgressPercentage;
         this.role = role;
         this.oauthProviders = oauthProviders;
     }
@@ -83,6 +99,30 @@ public class SessionInfoResponse {
 
     public void setLevel(Integer level) {
         this.level = level;
+    }
+
+    public Integer getExp() {
+        return exp;
+    }
+
+    public void setExp(Integer exp) {
+        this.exp = exp;
+    }
+
+    public Integer getExpForNextLevel() {
+        return expForNextLevel;
+    }
+
+    public void setExpForNextLevel(Integer expForNextLevel) {
+        this.expForNextLevel = expForNextLevel;
+    }
+
+    public Integer getExpProgressPercentage() {
+        return expProgressPercentage;
+    }
+
+    public void setExpProgressPercentage(Integer expProgressPercentage) {
+        this.expProgressPercentage = expProgressPercentage;
     }
 
     public String getRole() {

@@ -71,6 +71,13 @@ public class User {
     private Integer level = 1;
 
     /**
+     * Total experience points accumulated by the user.
+     * Level is calculated based on this value using the exp table.
+     */
+    @Column(name = "exp", nullable = false)
+    private Integer exp = 0;
+
+    /**
      * User role for role-based access control (RBAC).
      * Default: STUDENT
      */
@@ -112,8 +119,11 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        if (this.exp == null) {
+            this.exp = 0;
+        }
         if (this.level == null) {
-            this.level = 1;
+            this.level = calculateLevelFromExp(this.exp);
         }
         if (this.role == null) {
             this.role = UserRole.STUDENT;
@@ -220,6 +230,28 @@ public class User {
         this.level = level;
     }
 
+    public Integer getExp() {
+        return exp;
+    }
+
+    public void setExp(Integer exp) {
+        this.exp = exp;
+        // Auto-update level when exp changes
+        this.level = calculateLevelFromExp(exp);
+    }
+
+    /**
+     * Add experience points and auto-level up if needed.
+     * @param amount Amount of exp to add
+     * @return true if leveled up, false otherwise
+     */
+    public boolean addExp(int amount) {
+        int oldLevel = this.level;
+        this.exp += amount;
+        this.level = calculateLevelFromExp(this.exp);
+        return this.level > oldLevel;
+    }
+
     public UserRole getRole() {
         return role;
     }
@@ -285,6 +317,90 @@ public class User {
     public void removeOAuthProviderLink(OAuthProviderLink link) {
         oauthProviderLinks.remove(link);
         link.setUser(null);
+    }
+
+    // Experience and Level calculation methods
+
+    /**
+     * Calculate level based on total experience points.
+     * Based on the exp table in docs/student-exp.md
+     */
+    private static int calculateLevelFromExp(int totalExp) {
+        // Level thresholds from student-exp.md
+        int[] expThresholds = {
+            0,     // Level 1
+            200,   // Level 2
+            500,   // Level 3
+            1500,  // Level 4
+            3000,  5000,  7000,  9000,  11000, 13000,  // Levels 5-10
+            15000, 17000, 19000, 21000, 23000,          // Levels 11-15
+            25000, 27000, 29000, 31000, 33000,          // Levels 16-20
+            35000, 37000, 39000, 41000, 43000,          // Levels 21-25
+            45000, 47000, 49000, 51000, 53000,          // Levels 26-30
+            55000, 57000, 59000, 61000, 63000, 65000    // Levels 31-36
+        };
+
+        for (int i = expThresholds.length - 1; i >= 0; i--) {
+            if (totalExp >= expThresholds[i]) {
+                return i + 1; // Level is index + 1
+            }
+        }
+        return 1; // Default to level 1
+    }
+
+    /**
+     * Get experience needed for next level.
+     * Returns -1 if at max level (36)
+     */
+    public int getExpForNextLevel() {
+        if (level >= 36) {
+            return -1; // Max level reached
+        }
+
+        int[] expThresholds = {
+            0,     // Level 1
+            200,   // Level 2
+            500,   // Level 3
+            1500,  // Level 4
+            3000,  5000,  7000,  9000,  11000, 13000,  // Levels 5-10
+            15000, 17000, 19000, 21000, 23000,          // Levels 11-15
+            25000, 27000, 29000, 31000, 33000,          // Levels 16-20
+            35000, 37000, 39000, 41000, 43000,          // Levels 21-25
+            45000, 47000, 49000, 51000, 53000,          // Levels 26-30
+            55000, 57000, 59000, 61000, 63000, 65000    // Levels 31-36
+        };
+
+        return expThresholds[level] - exp;
+    }
+
+    /**
+     * Get progress percentage to next level (0-100).
+     * Returns 100 if at max level.
+     */
+    public int getExpProgressPercentage() {
+        if (level >= 36) {
+            return 100; // Max level
+        }
+
+        int[] expThresholds = {
+            0,     // Level 1
+            200,   // Level 2
+            500,   // Level 3
+            1500,  // Level 4
+            3000,  5000,  7000,  9000,  11000, 13000,  // Levels 5-10
+            15000, 17000, 19000, 21000, 23000,          // Levels 11-15
+            25000, 27000, 29000, 31000, 33000,          // Levels 16-20
+            35000, 37000, 39000, 41000, 43000,          // Levels 21-25
+            45000, 47000, 49000, 51000, 53000,          // Levels 26-30
+            55000, 57000, 59000, 61000, 63000, 65000    // Levels 31-36
+        };
+
+        int currentLevelExp = expThresholds[level - 1];
+        int nextLevelExp = expThresholds[level];
+        int expInCurrentLevel = exp - currentLevelExp;
+        int expNeededForLevel = nextLevelExp - currentLevelExp;
+
+        return (int) ((expInCurrentLevel * 100.0) / expNeededForLevel);
     }
 
     @Override

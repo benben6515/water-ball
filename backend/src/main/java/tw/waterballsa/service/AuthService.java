@@ -263,6 +263,9 @@ public class AuthService extends DefaultOAuth2UserService {
                 user.getNickname(),
                 user.getEmail(),
                 user.getLevel(),
+                user.getExp(),
+                user.getExpForNextLevel(),
+                user.getExpProgressPercentage(),
                 user.getRole().name(), // Convert UserRole enum to string (e.g., "STUDENT")
                 oauthProviders
         );
