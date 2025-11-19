@@ -34,11 +34,11 @@ export default function AdminUsersPage() {
 
     // Check if user is admin
     const userDataStr = localStorage.getItem('user');
+    console.error(userDataStr);
     if (userDataStr) {
       const userData: SessionInfoResponse = JSON.parse(userDataStr);
+      console.error(userData);
       setCurrentUser(userData);
-      console.log(userDataStr);
-      console.log(userData);
 
       if (userData.role !== 'ADMIN') {
         // Not an admin, redirect to home
@@ -50,7 +50,7 @@ export default function AdminUsersPage() {
       fetchUsers();
     } else {
       // Not logged in, redirect to login
-      router.push('/login');
+      // router.push('/login');
     }
   }, [router, mounted]);
 
