@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   // Production optimizations
   compress: true,
 
+  // Explicitly configure environment variables for browser
+  env: {
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080',
+  },
+
   // Image optimization
   images: {
     unoptimized: false,
