@@ -59,7 +59,7 @@ export default function AdminUsersPage() {
     const accessToken = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch(`${backendUrl}/admin/users/all`, {
+      const response = await fetch(`${backendUrl}/api/admin/users/all`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
     setUpdatingUserId(userId);
 
     try {
-      const response = await fetch(`${backendUrl}/admin/users/${userId}/role`, {
+      const response = await fetch(`${backendUrl}/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${accessToken}`,

@@ -26,14 +26,14 @@ import java.util.List;
  * All endpoints require ADMIN role.
  *
  * Endpoints:
- * - GET /admin/users - List all users
- * - GET /admin/users/{id} - Get user details
- * - PUT /admin/users/{id}/role - Update user role
+ * - GET /api/admin/users - List all users
+ * - GET /api/admin/users/{id} - Get user details
+ * - PUT /api/admin/users/{id}/role - Update user role
  *
  * @author Water Ball SA
  */
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/api/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
 public class UserManagementController {
 
