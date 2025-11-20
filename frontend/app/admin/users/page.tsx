@@ -56,7 +56,16 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const response = await api.get('/api/admin/users/all');
-      setUsers(response.data);
+      const data = response.data;
+
+      // Ensure data is an array before setting
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else {
+        console.error('Unexpected response format:', data);
+        setUsers([]);
+        setError('資料格式錯誤');
+      }
     } catch (err: any) {
       console.error('Failed to fetch users:', err);
 
@@ -79,9 +88,11 @@ export default function AdminUsersPage() {
       await api.put(`/api/admin/users/${userId}/role`, { role: newRole });
 
       // Update local state
-      setUsers(
-        users.map((user) => (user.user_id === userId ? { ...user, role: newRole } : user))
-      );
+      if (Array.isArray(users)) {
+        setUsers(
+          users.map((user) => (user.user_id === userId ? { ...user, role: newRole } : user))
+        );
+      }
     } catch (err: any) {
       console.error('Failed to update role:', err);
       const errorMsg = getErrorMessage(err);
@@ -149,24 +160,26 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">總使用者</p>
-            <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {Array.isArray(users) ? users.length : 0}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">管理員</p>
             <p className="text-2xl font-bold text-red-600">
-              {users.filter((u) => u.role === 'ADMIN').length}
+              {Array.isArray(users) ? users.filter((u) => u.role === 'ADMIN').length : 0}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">老師</p>
             <p className="text-2xl font-bold text-purple-600">
-              {users.filter((u) => u.role === 'TEACHER').length}
+              {Array.isArray(users) ? users.filter((u) => u.role === 'TEACHER').length : 0}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4">
             <p className="text-sm text-gray-500">學生</p>
             <p className="text-2xl font-bold text-blue-600">
-              {users.filter((u) => u.role === 'STUDENT').length}
+              {Array.isArray(users) ? users.filter((u) => u.role === 'STUDENT').length : 0}
             </p>
           </div>
         </div>
@@ -204,61 +217,62 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.user_id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.user_id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                          {user.nickname.charAt(0).toUpperCase()}
+                {Array.isArray(users) &&
+                  users.map((user) => (
+                    <tr key={user.user_id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {user.user_id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            {user.nickname.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">{user.nickname}</p>
+                          </div>
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">{user.nickname}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
-                        Lv. {user.level}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <RoleBadge role={user.role} size="sm" />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.oauth_providers.join(', ')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString('zh-TW')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <select
-                        value={user.role}
-                        onChange={(e) => updateUserRole(user.user_id, e.target.value as UserRole)}
-                        disabled={
-                          updatingUserId === user.user_id || user.user_id === currentUser?.user_id
-                        }
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      >
-                        <option value="GUEST">訪客</option>
-                        <option value="STUDENT">學生</option>
-                        <option value="TEACHER">老師</option>
-                        <option value="ADMIN">管理員</option>
-                      </select>
-                      {updatingUserId === user.user_id && (
-                        <p className="text-xs text-gray-500 mt-1">更新中...</p>
-                      )}
-                      {user.user_id === currentUser?.user_id && (
-                        <p className="text-xs text-gray-500 mt-1">無法修改自己</p>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {user.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                          Lv. {user.level}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <RoleBadge role={user.role} size="sm" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {user.oauth_providers.join(', ')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(user.created_at).toLocaleDateString('zh-TW')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <select
+                          value={user.role}
+                          onChange={(e) => updateUserRole(user.user_id, e.target.value as UserRole)}
+                          disabled={
+                            updatingUserId === user.user_id || user.user_id === currentUser?.user_id
+                          }
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        >
+                          <option value="GUEST">訪客</option>
+                          <option value="STUDENT">學生</option>
+                          <option value="TEACHER">老師</option>
+                          <option value="ADMIN">管理員</option>
+                        </select>
+                        {updatingUserId === user.user_id && (
+                          <p className="text-xs text-gray-500 mt-1">更新中...</p>
+                        )}
+                        {user.user_id === currentUser?.user_id && (
+                          <p className="text-xs text-gray-500 mt-1">無法修改自己</p>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

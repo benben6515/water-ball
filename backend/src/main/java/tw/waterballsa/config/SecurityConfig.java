@@ -1,17 +1,24 @@
 package tw.waterballsa.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 import tw.waterballsa.security.JwtAuthenticationFilter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Spring Security configuration.
@@ -56,6 +63,28 @@ public class SecurityConfig {
 
     @Autowired
     private tw.waterballsa.security.OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+    /**
+     * Custom authentication entry point for API endpoints.
+     * Returns JSON error instead of redirecting to login page.
+     */
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+
+            Map<String, Object> errorData = new HashMap<>();
+            errorData.put("error", "Unauthorized");
+            errorData.put("message", "請先登入");
+            errorData.put("code", "AUTHENTICATION_REQUIRED");
+            errorData.put("path", request.getRequestURI());
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(response.getOutputStream(), errorData);
+        };
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -113,6 +142,11 @@ public class SecurityConfig {
                                 .baseUri("/login/oauth2/code/*")
                         )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
+                )
+
+                // Custom authentication entry point for API endpoints
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint())
                 )
 
                 // Add JWT filter before UsernamePasswordAuthenticationFilter

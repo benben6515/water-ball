@@ -18,7 +18,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
  * ```
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
 
 /**
  * Create Axios instance with default configuration.
