@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RoleBadge from '@/components/RoleBadge';
+import api, { getErrorMessage } from '@/lib/api';
 import type { SessionInfoResponse, UserRole } from '@/types/api';
 
 interface UserListItem {
@@ -53,61 +54,38 @@ export default function AdminUsersPage() {
   }, [router, mounted]);
 
   const fetchUsers = async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
-    const accessToken = localStorage.getItem('access_token');
-
     try {
-      const response = await fetch(`${backendUrl}/api/admin/users/all`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await api.get('/api/admin/users/all');
+      setUsers(response.data);
+    } catch (err: any) {
+      console.error('Failed to fetch users:', err);
 
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      } else if (response.status === 403) {
+      if (err.response?.status === 403) {
         setError('您沒有權限訪問此頁面');
         setTimeout(() => router.push('/'), 2000);
       } else {
-        setError('無法載入使用者列表');
+        const errorMsg = getErrorMessage(err);
+        setError(`載入失敗: ${errorMsg}`);
       }
-    } catch (err) {
-      console.error('Failed to fetch users:', err);
-      setError('載入失敗，請稍後再試');
     } finally {
       setLoading(false);
     }
   };
 
   const updateUserRole = async (userId: number, newRole: UserRole) => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
-    const accessToken = localStorage.getItem('access_token');
-
     setUpdatingUserId(userId);
 
     try {
-      const response = await fetch(`${backendUrl}/api/admin/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
+      await api.put(`/api/admin/users/${userId}/role`, { role: newRole });
 
-      if (response.ok) {
-        // Update local state
-        setUsers(
-          users.map((user) => (user.user_id === userId ? { ...user, role: newRole } : user))
-        );
-      } else {
-        const errorData = await response.json();
-        alert(`更新失敗: ${errorData.message || '未知錯誤'}`);
-      }
-    } catch (err) {
+      // Update local state
+      setUsers(
+        users.map((user) => (user.user_id === userId ? { ...user, role: newRole } : user))
+      );
+    } catch (err: any) {
       console.error('Failed to update role:', err);
-      alert('更新失敗，請稍後再試');
+      const errorMsg = getErrorMessage(err);
+      alert(`更新失敗: ${errorMsg}`);
     } finally {
       setUpdatingUserId(null);
     }
