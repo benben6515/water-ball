@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import coursesData from '@/data/courses.json';
 
 interface Course {
@@ -7,11 +10,13 @@ interface Course {
   instructor: string;
   duration: string;
   level: string;
-  price: number;
+  price: number | string;
+  comingSoon: boolean;
   features: string[];
 }
 
 export default function CourseSection() {
+  const router = useRouter();
   const courses: Course[] = coursesData;
 
   return (
@@ -23,8 +28,19 @@ export default function CourseSection() {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="border border-amber-200 rounded-lg p-6 hover:shadow-md hover:border-green-400 transition-all bg-white"
+              onClick={() => !course.comingSoon && router.push(`/courses/${course.id}`)}
+              className={`border border-amber-200 rounded-lg p-6 hover:shadow-md transition-all bg-white relative ${
+                course.comingSoon
+                  ? 'opacity-75 cursor-not-allowed'
+                  : 'hover:border-green-400 cursor-pointer'
+              }`}
             >
+              {course.comingSoon && (
+                <div className="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                  即將推出
+                </div>
+              )}
+
               <h3 className="text-xl font-semibold mb-2">
                 {course.title}
               </h3>
@@ -40,11 +56,28 @@ export default function CourseSection() {
 
               <div className="flex items-center justify-between pt-4 border-t">
                 <span className="text-xl font-semibold">
-                  NT$ {course.price.toLocaleString()}
+                  {typeof course.price === 'number'
+                    ? `NT$ ${course.price.toLocaleString()}`
+                    : `NT$ ${course.price}`}
                 </span>
-                <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors shadow-sm hover:shadow-md">
-                  購買
-                </button>
+                {!course.comingSoon ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/courses/${course.id}`);
+                    }}
+                    className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
+                  >
+                    查看課程
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="px-6 py-2 bg-gray-400 text-white rounded cursor-not-allowed shadow-sm"
+                  >
+                    即將推出
+                  </button>
+                )}
               </div>
             </div>
           ))}

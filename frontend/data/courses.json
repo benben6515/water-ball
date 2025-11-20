@@ -1,12 +1,13 @@
 [
   {
     "id": 1,
-    "title": "軟體設計模式之旅",
-    "description": "從零開始學習物件導向設計模式，透過實戰案例深入理解 23 種經典設計模式的應用場景與實作技巧。",
-    "instructor": "地球",
+    "title": "軟體設計模式",
+    "description": "透過實戰練習學習軟體設計模式，從基礎到進階，打造紮實的物件導向設計能力。包含8個主題副本，49個實戰影片，帶你從零到一建立完整的軟體設計思維。",
+    "instructor": "Water Ball老師",
     "duration": "49 部影片",
     "level": "中高階",
     "price": 3980,
+    "comingSoon": false,
     "coverImage": "/images/courses/design-patterns.jpg",
     "features": [
       "8 個主要副本（章節）",
@@ -22,7 +23,8 @@
     "instructor": "地球",
     "duration": "持續更新中",
     "level": "進階",
-    "price": 2980,
+    "price": "????",
+    "comingSoon": true,
     "coverImage": "/images/courses/ai-bdd.jpg",
     "features": [
       "AI 輔助開發實戰",

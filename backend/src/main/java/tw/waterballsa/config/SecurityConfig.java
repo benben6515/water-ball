@@ -119,6 +119,9 @@ public class SecurityConfig {
                         // Public endpoints - Token refresh
                         .requestMatchers("/auth/refresh").permitAll()
 
+                        // Public endpoints - Course listing and details
+                        .requestMatchers("/api/courses", "/api/courses/**").permitAll()
+
                         // Protected endpoints - require authentication
                         .requestMatchers(
                                 "/auth/session",

@@ -3,7 +3,7 @@ import Logo from './Logo';
 
 export default function Header() {
   return (
-    <header className="border-b border-amber-200 bg-amber-50/30">
+    <header className="border-b border-amber-200 bg-[rgba(255,255,255,0.7)] backdrop-blur-sm">
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-green-700 hover:text-green-600 transition-colors">

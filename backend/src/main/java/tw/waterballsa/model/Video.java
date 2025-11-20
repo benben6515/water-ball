@@ -36,6 +36,10 @@ public class Video {
     @Column(name = "course_id")
     private Long courseId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dungeon_id")
+    private Dungeon dungeon;
+
     @Column(name = "chapter_number")
     private Integer chapterNumber;
 
@@ -44,6 +48,9 @@ public class Video {
 
     @Column(name = "exp_reward", nullable = false)
     private Integer expReward = 200;
+
+    @Column(name = "is_demo", nullable = false)
+    private Boolean isDemo = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -136,6 +143,14 @@ public class Video {
         this.courseId = courseId;
     }
 
+    public Dungeon getDungeon() {
+        return dungeon;
+    }
+
+    public void setDungeon(Dungeon dungeon) {
+        this.dungeon = dungeon;
+    }
+
     public Integer getChapterNumber() {
         return chapterNumber;
     }
@@ -158,6 +173,14 @@ public class Video {
 
     public void setExpReward(Integer expReward) {
         this.expReward = expReward;
+    }
+
+    public Boolean getIsDemo() {
+        return isDemo;
+    }
+
+    public void setIsDemo(Boolean isDemo) {
+        this.isDemo = isDemo;
     }
 
     public LocalDateTime getCreatedAt() {
