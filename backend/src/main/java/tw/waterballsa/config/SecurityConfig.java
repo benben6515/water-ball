@@ -126,7 +126,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/session",
                                 "/auth/logout",
-                                "/profile/**",
+                                "/api/profile",
                                 "/linking/**",
                                 "/orders/**",
                                 "/courses/owned"

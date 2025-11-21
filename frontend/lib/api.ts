@@ -90,9 +90,13 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
+        // Refresh failed - clear tokens and user data, then redirect to login
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+
+        // Dispatch event to notify components of logout
+        window.dispatchEvent(new Event('userDataChanged'));
 
         // Save current location for redirect after login
         if (typeof window !== 'undefined') {

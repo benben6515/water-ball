@@ -9,7 +9,7 @@ import tw.waterballsa.dto.ProfileResponse;
 import tw.waterballsa.dto.UpdateProfileRequest;
 import tw.waterballsa.service.ProfileService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
