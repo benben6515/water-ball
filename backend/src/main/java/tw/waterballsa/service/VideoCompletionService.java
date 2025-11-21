@@ -62,12 +62,15 @@ public class VideoCompletionService {
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new IllegalArgumentException("Video not found: " + videoId));
 
-        // Award exp to user
-        int expAwarded = video.getExpReward();
-        boolean leveledUp = user.addExp(expAwarded);
+        // Award exp to user (demo videos don't award exp)
+        int expAwarded = video.getIsDemo() ? 0 : video.getExpReward();
+        boolean leveledUp = false;
 
-        // Save user with updated exp
-        userRepository.save(user);
+        if (expAwarded > 0) {
+            leveledUp = user.addExp(expAwarded);
+            // Save user with updated exp
+            userRepository.save(user);
+        }
 
         // Create completion record
         VideoCompletion completion = new VideoCompletion(user, video, expAwarded);

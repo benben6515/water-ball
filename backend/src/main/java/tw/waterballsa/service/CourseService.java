@@ -1,5 +1,7 @@
 package tw.waterballsa.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class CourseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
 
     @Autowired
     private CourseRepository courseRepository;
@@ -76,17 +80,24 @@ public class CourseService {
      */
     @Transactional
     public UserCourseOwnership grantCourseOwnership(User user, Course course) {
+        logger.info("Granting course ownership: userId={}, courseId={}", user.getUserId(), course.getCourseId());
+
         // Check if already owned
         Optional<UserCourseOwnership> existing = ownershipRepository
             .findByUser_UserIdAndCourse_CourseId(user.getUserId(), course.getCourseId());
 
         if (existing.isPresent()) {
+            logger.info("Course ownership already exists: ownershipId={}", existing.get().getOwnershipId());
             return existing.get();
         }
 
         // Create new ownership
         UserCourseOwnership ownership = new UserCourseOwnership(user, course);
-        return ownershipRepository.save(ownership);
+        ownership = ownershipRepository.save(ownership);
+        logger.info("Course ownership created: ownershipId={}, userId={}, courseId={}",
+                ownership.getOwnershipId(), user.getUserId(), course.getCourseId());
+
+        return ownership;
     }
 
     /**

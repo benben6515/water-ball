@@ -1,5 +1,7 @@
 package tw.waterballsa.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     private OrderRepository orderRepository;
@@ -50,6 +54,8 @@ public class OrderService {
      */
     @Transactional
     public Order createDirectPurchase(Long userId, Long courseId) {
+        logger.info("Creating direct purchase: userId={}, courseId={}", userId, courseId);
+
         // Fetch user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到使用者"));
@@ -59,7 +65,10 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("找不到課程"));
 
         // Check if user already owns the course
-        if (courseService.userOwnsCourse(userId, courseId)) {
+        boolean alreadyOwns = courseService.userOwnsCourse(userId, courseId);
+        logger.info("User ownership check: userId={}, courseId={}, alreadyOwns={}", userId, courseId, alreadyOwns);
+
+        if (alreadyOwns) {
             throw new IllegalStateException("您已擁有此課程");
         }
 
@@ -72,12 +81,15 @@ public class OrderService {
 
         // Save order (cascade will save order items)
         order = orderRepository.save(order);
+        logger.info("Order created: orderId={}", order.getOrderId());
 
         // Process mock payment (automatically mark as paid)
         processMockPayment(order);
+        logger.info("Payment processed: orderId={}, status={}", order.getOrderId(), order.getPaymentStatus());
 
         // Grant course ownership after successful payment
         courseService.grantCourseOwnership(user, course);
+        logger.info("Course ownership granted: userId={}, courseId={}", userId, courseId);
 
         return order;
     }

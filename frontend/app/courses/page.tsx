@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
 
 interface Course {
   courseId: number;
@@ -33,8 +33,7 @@ export default function CoursesPage() {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
-        const response = await axios.get(`${backendUrl}/api/courses`);
+        const response = await api.get('/api/courses');
         setCourses(response.data);
         setError(null);
       } catch (err) {
@@ -52,11 +51,11 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             課程列表
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             探索我們精心設計的課程，從基礎到進階，幫助您成為優秀的軟體工程師
           </p>
         </div>
@@ -77,12 +76,12 @@ export default function CoursesPage() {
 
         {/* Course Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {courses.map((course) => (
               <div
                 key={course.courseId}
                 onClick={() => router.push(`/courses/${course.courseId}`)}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer flex flex-col"
               >
                 {/* Course Cover Image */}
                 <div className="relative h-48 bg-gray-200">
@@ -105,20 +104,20 @@ export default function CoursesPage() {
                 </div>
 
                 {/* Course Content */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6 flex flex-col flex-grow">
                   {/* Course Title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                     {course.title}
                   </h3>
 
                   {/* Course Description */}
-                  <p className="text-gray-600 text-sm mb-4 h-16 line-clamp-3">
+                  <p className="text-gray-600 text-sm mb-3 sm:mb-4 h-16 line-clamp-3">
                     {course.description}
                   </p>
 
                   {/* Instructor Info */}
-                  <div className="flex items-center mb-4">
-                    <div className="relative w-10 h-10 mr-3">
+                  <div className="flex items-center mb-3 sm:mb-4">
+                    <div className="relative w-8 h-8 sm:w-10 sm:h-10 mr-2 sm:mr-3">
                       <Image
                         src={course.instructorAvatarUrl}
                         alt={course.instructorName}
@@ -126,34 +125,34 @@ export default function CoursesPage() {
                         className="rounded-full object-cover"
                       />
                     </div>
-                    <span className="text-sm text-gray-700 font-medium">
+                    <span className="text-xs sm:text-sm text-gray-700 font-medium">
                       {course.instructorName}
                     </span>
                   </div>
 
                   {/* Course Stats */}
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <span>📚 {course.totalDungeons} 個副本</span>
-                    <span>🎥 {course.totalVideos} 個影片</span>
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 mb-4 sm:mb-4">
+                    <span>📚 {course.totalDungeons} 副本</span>
+                    <span>🎥 {course.totalVideos} 影片</span>
                   </div>
 
                   {/* Price and Action */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-4 border-t border-gray-200 mt-auto">
                     <div>
                       {course.free ? (
-                        <span className="text-2xl font-bold text-green-600">免費</span>
+                        <span className="text-xl sm:text-2xl font-bold text-green-600">免費</span>
                       ) : (
-                        <span className="text-2xl font-bold text-gray-900">
+                        <span className="text-xl sm:text-2xl font-bold text-gray-900">
                           NT$ {course.price.toLocaleString()}
                         </span>
                       )}
                     </div>
                     {course.owned ? (
-                      <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                      <button className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm sm:text-base">
                         開始學習
                       </button>
                     ) : (
-                      <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                      <button className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm sm:text-base">
                         {course.free ? '立即加入' : '購買課程'}
                       </button>
                     )}
