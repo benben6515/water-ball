@@ -75,6 +75,15 @@ export default function Navbar() {
             >
               關於
             </Link>
+            {/* Profile Link - Only show if user is logged in */}
+            {user && (
+              <Link
+                href="/profile"
+                className="text-gray-700 hover:text-green-700 transition-colors font-medium"
+              >
+                個人資料
+              </Link>
+            )}
             {/* Admin Link - Only show if user is ADMIN */}
             {user?.role === 'ADMIN' && (
               <Link
