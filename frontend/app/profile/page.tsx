@@ -37,6 +37,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -114,6 +117,37 @@ export default function ProfilePage() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== '刪除我的帳號') {
+      setError('請輸入正確的確認文字');
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setError(null);
+
+      await api.delete('/api/account');
+
+      // Clear all user data
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+
+      // Notify other components
+      window.dispatchEvent(new Event('userDataChanged'));
+
+      // Redirect to home page
+      alert('您的帳號已成功刪除。感謝您使用地球軟體學院的服務。');
+      window.location.href = '/';
+    } catch (err: any) {
+      console.error('Failed to delete account:', err);
+      setError(err.response?.data?.message || '刪除帳號失敗，請稍後再試');
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -345,6 +379,86 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
+
+        {/* Delete Account Section */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mt-6 border-2 border-red-200">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">危險區域</h2>
+          <p className="text-gray-700 mb-4">
+            刪除帳號後，您的所有資料將被永久刪除且無法復原，包括：
+          </p>
+          <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1">
+            <li>個人資料與帳號資訊</li>
+            <li>課程學習進度</li>
+            <li>已購買的課程記錄</li>
+            <li>成就與經驗值</li>
+            <li>第三方帳號連結</li>
+          </ul>
+
+          <button
+            type="button"
+            onClick={() => setShowDeleteDialog(true)}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
+          >
+            刪除帳號
+          </button>
+        </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
+              <h3 className="text-2xl font-bold text-red-600 mb-4">確認刪除帳號</h3>
+              <p className="text-gray-700 mb-6">
+                此操作無法復原。刪除後，您的所有資料將被永久刪除。
+              </p>
+              <p className="text-gray-700 mb-4">
+                請輸入 <span className="font-bold text-red-600">刪除我的帳號</span> 以確認：
+              </p>
+
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent mb-6"
+                placeholder="刪除我的帳號"
+                autoFocus
+              />
+
+              {error && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={deleting || deleteConfirmText !== '刪除我的帳號'}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleting ? '刪除中...' : '確認刪除'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteDialog(false);
+                    setDeleteConfirmText('');
+                    setError(null);
+                  }}
+                  disabled={deleting}
+                  className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold disabled:opacity-50"
+                >
+                  取消
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-4 text-center">
+                此功能符合 Facebook 平台政策要求
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

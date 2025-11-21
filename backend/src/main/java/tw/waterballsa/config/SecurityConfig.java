@@ -127,6 +127,7 @@ public class SecurityConfig {
                                 "/auth/session",
                                 "/auth/logout",
                                 "/api/profile",
+                                "/api/account",
                                 "/linking/**",
                                 "/orders/**",
                                 "/courses/owned"
